@@ -14,17 +14,27 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+import java.util.List;
+
+
 @RestController
 public class ProductController {
 
-    @Autowired
-    ProductRepository productRepository;
+    private final ProductRepository productRepository;
+
+    public ProductController(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     @PostMapping("/products")
     public ResponseEntity<Products> saveProduct(@RequestBody @Valid ProductRecordDto productRecordDto){
         var product = new Products();
         BeanUtils.copyProperties(productRecordDto, product);
         return ResponseEntity.status(HttpStatus.CREATED).body(productRepository.save(product));
+    }
+
+    @GetMapping("/products")
+    public ResponseEntity<List<Products>> getAllProducts(){
+        return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
     }
 }
