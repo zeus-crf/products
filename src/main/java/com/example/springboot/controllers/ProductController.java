@@ -14,14 +14,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+
 @RestController
 public class ProductController {
 
-    @Autowired
-    ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
-    @PostMapping("/prodects")
+    public ProductController(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
+
+    @PostMapping("/products")
     public ResponseEntity<Products> saveProduct(@RequestBody @Valid ProductRecordDto productRecordDto){
         var product = new Products();
         BeanUtils.copyProperties(productRecordDto, product);
