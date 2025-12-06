@@ -6,6 +6,7 @@ import com.example.springboot.repositories.ProductRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,6 +16,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 
 @RestController
@@ -35,7 +39,14 @@ public class ProductController {
 
     @GetMapping("/products")
     public ResponseEntity<List<Products>> getAllProducts(){
-        return ResponseEntity.status(HttpStatus.OK).body(productRepository.findAll());
+        List<Products>  productsList = productRepository.findAll();
+        if (!productsList.isEmpty()){
+            for (Products product : productsList){
+                UUID id = product.getIdProduct();
+                product.add(linkTo(methodOn(ProductController.class).getOneProduct(id)).withSelfRel());
+            }
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(productsList);
     }
 
     @GetMapping("/products/{id}")
@@ -56,6 +67,17 @@ public class ProductController {
         var product = productO.get();
         BeanUtils.copyProperties(productRecordDto, product);
         return ResponseEntity.status(HttpStatus.OK).body(productRepository.save(product));
+
+    }
+
+    @DeleteMapping("/products/{id}")
+    public ResponseEntity<Object> deletedProduct(@PathVariable(value = "id") UUID id){
+        Optional<Products> productO = productRepository.findById(id);
+        if (productO.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produto não encotrado");
+        }
+        productRepository.deleteById(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Produto exluído com sucesso");
 
     }
 
