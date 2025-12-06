@@ -2,6 +2,8 @@ package com.example.springboot.models;
 
 
 import jakarta.persistence.*;
+import org.hibernate.boot.jaxb.hbm.internal.RepresentationModeConverter;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -9,7 +11,7 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "TB_PRODUCTS")
-public class Products implements Serializable {
+public class Products extends RepresentationModel<Products> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
